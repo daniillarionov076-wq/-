@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>МВД Бухалово</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      background: #f2f2f2;
+    }
+    header {
+      background: linear-gradient(to right, #ff0000, #0000ff);
+      color: white;
+      padding: 20px;
+      text-align: center;
+    }
+    nav {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      background-color: #222;
+    }
+    nav button {
+      background: none;
+      border: none;
+      color: white;
+      padding: 15px 20px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+    nav button:hover {
+      background-color: #444;
+    }
+    .content {
+      padding: 20px;
+    }
+    .hidden {
+      display: none;
+    }
+    .employee-card {
+      border: 1px solid #ccc;
+      padding: 10px;
+      margin-bottom: 10px;
+      cursor: pointer;
+    }
+    .admin-panel {
+      border: 1px solid #444;
+      padding: 10px;
+      margin-top: 20px;
+    }
+    input, textarea {
+      width: 100%;
+      margin-bottom: 10px;
+      padding: 5px;
+    }
+    button.add {
+      background-color: #007bff;
+      color: white;
+      border: none;
+      padding: 10px;
+      cursor: pointer;
+    }
+    button.edit {
+      background-color: #28a745;
+      color: white;
+      border: none;
+      padding: 5px 10px;
+      margin-left: 5px;
+      cursor: pointer;
+    }
+    button.delete {
+      background-color: #dc3545;
+      color: white;
+      border: none;
+      padding: 5px 10px;
+      margin-left: 5px;
+      cursor: pointer;
+    }
+    .edit-tab-btn {
+      background-color: #ffc107;
+      color: white;
+      border: none;
+      padding: 5px 10px;
+      margin-left: 5px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>МВД г. Бухалово и Бухаловской области</h1>
+</header>
+
+<nav id="navBar">
+  <button onclick="showTab('home')">Главная</button>
+  <button onclick="showTab('staff')">Высший состав полиции</button>
+  <button onclick="showTab('contact')">Обращение к Начальнику</button>
+  <button onclick="showTab('news')">Новости</button>
+  <button onclick="showTab('adminLogin')">Вход в администрацию</button>
+</nav>
+
+<div class="content">
+
+  <!-- Главная -->
+  <div id="home">
+    <h2>Приветствие начальника МВД</h2>
+    <p id="homeContent">Добро пожаловать на официальный сайт МВД г. Бухалово. Здесь вы можете ознакомиться с деятельностью полиции и связаться с нами.</p>
+  </div>
+
+  <!-- Высший состав полиции -->
+  <div id="staff" class="hidden">
+    <h2>Высший состав полиции</h2>
+    <div id="employeeList"></div>
+  </div>
+
+  <!-- Обращение к начальнику -->
+  <div id="contact" class="hidden">
+    <h2>Обращение к Начальнику полиции</h2>
+    <textarea id="contactContent" placeholder="Ваше обращение"></textarea>
+    <button class="add" onclick="sendMessage()">Отправить</button>
+  </div>
+
+  <!-- Новости -->
+  <div id="news" class="hidden">
+    <h2>Новости</h2>
+    <div id="newsContent">
+      <p>Последние новости полиции г. Бухалово будут здесь.</p>
+    </div>
+  </div>
+
+  <!-- Вход администратора -->
+  <div id="adminLogin" class="hidden">
+    <h2>Вход в администрацию</h2>
+    <input type="password" id="adminPassword" placeholder="Введите пароль">
+    <button class="add" onclick="loginAdmin()">Войти</button>
+    <p id="loginMessage" style="color:red;"></p>
+  </div>
+
+  <!-- Панель администратора -->
+  <div id="adminPanel" class="hidden">
+    <h2>Административная панель</h2>
+
+    <!-- Управление сотрудниками -->
+    <div class="admin-panel">
+      <h3>Добавить сотрудника</h3>
+      <input type="text" id="empName" placeholder="ФИО">
+      <input type="text" id="empPhoto" placeholder="Ссылка на фото">
+      <textarea id="empInfo" placeholder="Образование, опыт службы"></textarea>
+      <button class="add" onclick="addEmployee()">Добавить сотрудника</button>
+    </div>
+
+    <!-- Управление вкладками -->
+    <div class="admin-panel">
+      <h3>Добавить новую вкладку</h3>
+      <input type="text" id="newTabName" placeholder="Название новой вкладки">
+      <textarea id="newTabContent" placeholder="Содержание вкладки"></textarea>
+      <button class="add" onclick="addTab()">Добавить вкладку</button>
+    </div>
+
+    <div class="admin-panel">
+      <h3>Редактировать существующие вкладки</h3>
+      <button class="edit-tab-btn" onclick="editTab('home', 'homeContent')">Редактировать Главную</button>
+      <button class="edit-tab-btn" onclick="editTab('news', 'newsContent')">Редактировать Новости</button>
+      <button class="edit-tab-btn" onclick="editTab('contact', 'contactContent')">Редактировать Обращения</button>
+      <div id="dynamicTabsAdmin"></div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  let employees = [];
+  let dynamicTabs = [];
+
+  function showTab(tabId) {
+    document.querySelectorAll('.content > div').forEach(div => div.classList.add('hidden'));
+    document.getElementById(tabId)?.classList.remove('hidden');
+  }
+
+  function loginAdmin() {
+    const password = document.getElementById('adminPassword').value;
+    if (password === 'Geeeeqolmvd') {
+      document.getElementById('adminLogin').classList.add('hidden');
+      document.getElementById('adminPanel').classList.remove('hidden');
+      document.getElementById('loginMessage').textContent = '';
+      renderDynamicTabsAdmin();
+    } else {
+      document.getElementById('loginMessage').textContent = 'Неверный пароль!';
+    }
+  }
+
+  function addEmployee() {
+    const name = document.getElementById('empName').value;
+    const photo = document.getElementById('empPhoto').value;
+    const info = document.getElementById('empInfo').value;
+    if (!name || !photo || !info) return alert('Заполните все поля!');
+
+    const emp = {name, photo, info};
+    employees.push(emp);
+    renderEmployees();
+
+    document.getElementById('empName').value = '';
+    document.getElementById('empPhoto').value = '';
+    document.getElementById('empInfo').value = '';
+  }
+
+  function renderEmployees() {
+    const container = document.getElementById('employeeList');
+    container.innerHTML = '';
+    employees.forEach((emp, index) => {
+      const card = document.createElement('div');
+      card.className = 'employee-card';
+      card.innerHTML = `
+        <strong onclick="showEmployeeInfo(${index})">${emp.name}</strong>
+        <button class="edit" onclick="editEmployee(${index})">Редактировать</button>
+        <button class="delete" onclick="deleteEmployee(${index})">Удалить</button>
+      `;
+      container.appendChild(card);
+    });
+  }
+
+  function showEmployeeInfo(index) {
+    const emp = employees[index];
+    alert(`ФИО: ${emp.name}\nФото: ${emp.photo}\nИнформация: ${emp.info}`);
+  }
+
+  function editEmployee(index) {
+    const emp = employees[index];
+    const newName = prompt('ФИО:', emp.name);
+    const newPhoto = prompt('Ссылка на фото:', emp.photo);
+    const newInfo = prompt('Информация:', emp.info);
+    if (newName && newPhoto && newInfo) {
+      employees[index] = {name: newName, photo: newPhoto, info: newInfo};
+      renderEmployees();
+    }
+  }
+
+  function deleteEmployee(index) {
+    if (confirm('Удалить сотрудника?')) {
+      employees.splice(index, 1);
+      renderEmployees();
+    }
+  }
+
+  function addTab() {
+    const name = document.getElementById('newTabName').value;
+    const content = document.getElementById('newTabContent').value;
+    if (!name || !content) return alert('Заполните все поля!');
+
+    const tabId = 'tab' + dynamicTabs.length;
+    dynamicTabs.push({id: tabId, name, content});
+
+    const btn = document.createElement('button');
+    btn.textContent = name;
+    btn.onclick = () => showTab(tabId);
+    document.getElementById('navBar').appendChild(btn);
+
+    const div = document.createElement('div');
+    div.id = tabId;
+    div.innerHTML = `<h2>${name}</h2><p>${content}</p>`;
+    div.className = 'hidden';
+    document.querySelector('.content').appendChild(div);
+
+    document.getElementById('newTabName').value = '';
+    document.getElementById('newTabContent').value = '';
+
+    renderDynamicTabsAdmin();
+  }
+
+  function renderDynamicTabsAdmin() {
+    const container = document.getElementById('dynamicTabsAdmin');
+    container.innerHTML = '';
+    dynamicTabs.forEach((tab, index) => {
+      const btn = document.createElement('button');
+      btn.className = 'edit-tab-btn';
+      btn.textContent = `Редактировать ${tab.name}`;
+      btn.onclick = () => editTab(tab.id);
+      container.appendChild(btn);
+    });
+  }
+
+  function editTab(tabId, contentId = null) {
+    const contentElem = contentId ? document.getElementById(contentId) : document.getElementById(tabId).querySelector('p');
+    const newContent = prompt('Введите новый текст для вкладки:', contentElem.innerHTML);
+    if (newContent !== null) {
+      contentElem.innerHTML = newContent;
+    }
+  }
+
+  function sendMessage() {
+    alert('Ваше сообщение отправлено начальнику!');
+  }
+</script>
+
+</body>
+</html>
